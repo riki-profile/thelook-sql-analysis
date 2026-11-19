@@ -34,4 +34,27 @@ LIMIT 5;
 -- departemen dan negara yang memberikan pendapatan tertinggi dipegang oleh China baik untuk departemen 'Men' dan 'Women' yang 
 -- kemudian disusul oleh United States sedangkan brasil berada dibagian Top 5 terbawah dengan departemen "Men"-nya
 
+-- 3. Analisa revenue, bagaimana uang the look ecommerce dihasilkan
+WITH pendapatan_per_kategori AS(
+  SELECT
+    p.category,
+    SUM(oi.sale_price) AS pendapatan,
+    SUM(oi.sale_price - p.cost) AS margin
+  FROM bigquery-public-data.thelook_ecommerce.order_items AS oi
+  JOIN bigquery-public-data.thelook_ecommerce.products AS p
+  ON oi.product_id = p.id
+  WHERE
+    status NOT IN ('Cancelled', 'Returned')
+  GROUP BY p.category
+)
+SELECT
+  category,
+  margin / pendapatan * 100 AS margin_pct
+FROM pendapatan_per_kategori
+ORDER BY margin_pct DESC;
+
+-- kategori produk dengan margin tinggi dipegang oleh kategori 'Blazers & Jackets' sekitar 62% 
+-- sedangakan produk dengan rasio margin terendah dipegang oleh 'Clothing Sets'
+
+
 
